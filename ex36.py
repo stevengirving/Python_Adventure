@@ -14,6 +14,9 @@ def start():
          The door is unlocked, open in fact.
          You could also see if there is anything around the back.
          Or maybe you should leave?
+
+         > Choose an option
+         > Open door | Go to back | Leave
          """
          )
 
