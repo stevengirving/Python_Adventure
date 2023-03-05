@@ -24,7 +24,7 @@ TYPE SELECTION:
         dead("Thank you for playing!")
 
 def difficulty():
-    """Sets the amount of mistakes player can make"""
+    """Sets the amount of health the player has"""
     print("Please choose your difficulty:")
     show_options = ["Easy", "Medium", "Hard"]
     selection = option_generator(show_options)
@@ -57,8 +57,24 @@ def start():
     print("Hello! Welcome to this little adventure!")
     print("\nWhat is your name?\n")
     player_name = input("> ")
+#    player_name = confirm_player_name(input("> "))
     print(f"\nWell {player_name}, let's get started.")
     return player_name
+
+'''
+def confirm_player_name(name):
+    loop = True
+    while loop is True:
+        print(f"You wrote {name}, is this correct?")
+        options = ["Yes", "No"]
+        confirm = user_input(options)
+        if confirm == "yes":
+            pass
+        elif confirm == "no":
+            name = input("> ")
+            confirm_player_name(name)
+    return name
+'''
 
 def update_inventory(item, action):
     """System to add or remove items to the inventory list"""
@@ -97,7 +113,7 @@ def house_front():
     the neighbourhood you're in. You take a closer look at the house.
     """
         )
-        finish_room("house_front")
+        finish_room(current_room)
     print("""
     The house itself seems to be abandoned, at least you cannot 
     see any lights on. The front door lays open, though perhaps
@@ -116,7 +132,7 @@ def house_front():
         pass
     else:
         print("Getting the heck outta here!")
-        pass
+        house_leave()
 
 def house_behind():
     """Describes behind The House and available actions"""
@@ -138,8 +154,30 @@ def house_left():
 # -> House Entrance
 
 def house_right():
-    """Descrbies the Right Room of The House and available actions"""
-# Puzzle!! Fight??? BEARS?
+    """Describes the Right Room and summons the Bear fight"""
+    current_room = house_right
+    if current_room in completed_rooms:
+        pass
+    else:
+        print("This will be the introductory message to the room")
+        print("Now summoning.... THE BEAR")
+        summon_bear(10, False)
+        finish_room(current_room)
+    
+    print("This should be a generic message post-Bear fight")
+
+def summon_bear(bear_health, bear_defeated):
+    if bear_defeated is False:
+        print(f"Current HP: {health}")
+        show_options("Fight", "Defend")
+        selection = option_generator(show_options)
+        if selection.lower() == "fight":
+            print("You go in for a fight!")
+            bear_health -= 3
+        elif selection.lower() == "defend":
+            print("You try to defend yourself against a bear. It hurts.")
+            health -= 2
+
 # Actually could do a simple fight system: (NEW FUNCTION???)
 #   Bear has 15? HP
 #   Player has {health}  HP
@@ -169,7 +207,28 @@ def house_secret():
 # Try to Leave
 # TODO 
 
+def house_leave():
+    """Runs a small loop of getting "lost" the first time, then allows
+    exit"""
+    current_room = "house_leave"
+    if current_room in completed_rooms:
+        print("You actually have your bears now, and don't know how you got lost before.")
+        return
+    else:
+        loop = True
+    print("Generic description of the neighbourhood")
 
+    while loop is True:
+        for i in range(0,5):
+            print("Repetitive description.")
+            input("> ")
+            if i == 5:
+                break
+        loop = False
+    finish_room(current_room)
+    house_front()
+
+        
 # Loop x5 message of walking if loop is False
 # Return to start
 # set loop is True
@@ -197,4 +256,4 @@ else:
     pass
 
 print("Congratulations {}! You left the neighbourhood with \
-{} HP! Here's what you had in your pockets: {}".format(player_name,health, *inventory))
+{} HP! Here's what you had in your pockets: {}".format(player_name, health, *inventory))
