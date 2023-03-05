@@ -1,20 +1,20 @@
 from sys import exit
+from random import randint
+
 """ A short text-based adventure game to explore the use of functions,
     lists, user input, and other shenanigans. 
 """
 
-# Adventure design!
-
-# Main Menu
 def main_menu():
     """ Prints the main menu of the game to allow exit"""
-    print("""MAIN MENU
+    print("""
+MAIN MENU
 
     > NEW GAME
     > EXIT
 
-    TYPE SELECTION:
-    """
+TYPE SELECTION:
+"""
     )
     show_options = ["New Game", "Exit"]
     selection = user_input(show_options)
@@ -29,15 +29,18 @@ def difficulty():
     show_options = ["Easy", "Medium", "Hard"]
     selection = option_generator(show_options)
     if selection.lower() == "easy":
-        return 5
+        return 20
     elif selection.lower() == "medium":
-        return 3
+        return 15
     else:
-        return 1
+        return 10
 
 def option_generator(options):
+    """Prints a vertical list of options in all caps"""
+    print("\n")
     for i in options:
         print("> ", i.upper())
+    print("\n")
     selection = user_input(options)
     return selection
 
@@ -49,54 +52,50 @@ def user_input(options):
         loop = verify_input(user_says, options)
     return user_says
 
-# Start message welcoming the player
 def start():
     """ Initiates the start of the game"""
     print("Hello! Welcome to this little adventure!")
-    player_name = get_player_name()
-    print(f"{player_name}, let's get started.")
+    print("\nWhat is your name?\n")
+    player_name = input("> ")
+    print(f"\nWell {player_name}, let's get started.")
     return player_name
 
-# Define player name
-def get_player_name():
-    """ Collects the player's name"""
-    print("What is your name?")
-    return input("> ")
-
-# Inventory system to add or remove
 def update_inventory(item, action):
-   if action == "add":
+    """System to add or remove items to the inventory list"""
+    if action == "add":
        inventory.append(item)
-   elif action == "remove":
+    elif action == "remove":
        inventory.remove(item)
-   else:
+    else:
        dead("Something messed up with update_inventory")
 
 def finish_room(room):
+    """Marks a room as "completed" to allow unique or alternate text"""
     completed_rooms.append(room)
 
-# Takes user input, verifies it against the options
 def verify_input(user_input, options):
+    """Checks the user's input against available options"""
     cleaned_options = []
     for option_cleaner in options:
         cleaned_options.append(option_cleaner.lower())
     if user_input.lower() in cleaned_options:
+        print("\n")
         return False
     else:
-        print("Please choose one of the options.")
+        print("Please choose one of the options.\n")
         return True
 
-# Front of House
 def house_front():
+    """Describes the front of The House and available actions"""
     current_room = house_front
     if current_room in completed_rooms:
         pass
     else:
         print("""
-        You are out on a walk one day when you come across a house you
-        have never seen before. Oddly enoguh, you don't even recognize
-        the neighbourhood you're in. You take a closer look at the house.
-        """
+    You are out on a walk one day when you come across a house you
+    have never seen before. Oddly enoguh, you don't even recognize
+    the neighbourhood you're in. You take a closer look at the house.
+    """
         )
         finish_room("house_front")
     print("""
@@ -119,49 +118,58 @@ def house_front():
         print("Getting the heck outta here!")
         pass
 
-    player_action(current_room, selection)
-
-# Back of House
+def house_behind():
+    """Describes behind The House and available actions"""
 # -> Look through windows - 3 choices
 # -> Go back to front of house
 
-# House Entrance
+def house_entrance():
+    """Describes the first room of The House and available actions"""
 # -> Left Door
 # -> Right Door
 # -> Entrance door, now locked
 
-# House Left
+def house_left():
+    """Describes the Left Room of The House and available actions"""
 # Some sort of puzzle
 # Door locked until solved
 # Secret item?
-# -> House Final
+# -> House Back
 # -> House Entrance
 
-# House Right
+def house_right():
+    """Descrbies the Right Room of The House and available actions"""
 # Puzzle!! Fight??? BEARS?
+# Actually could do a simple fight system: (NEW FUNCTION???)
+#   Bear has 15? HP
+#   Player has {health}  HP
+#   FIGHT (-3 bear HP) | DEFEND (-2 user HP) maybe ATK//2?
+#   BEAR does -5 HP per hit?
+#       Maybe 1/3 chance attack, 2/3 chance nothing
+#       This would mean death in 4/3/2 rounds...
+
 # Secret item!
 # -> House Back
 # -> House Entrance
 
-# House Final
+def house_back():
+    """Descibes the Back Room of The House and available actions"""
 # THE FINAL PUZZLE!!!
 # IT'S JUST GONNA BE FUCKING SODOKU
 # THAT'S A LIE
 # If both secret items:
 # -> House Secret
 
-# House... Secret????
+def house_secret():
+    """Describes the SECRET ROOM of The House, needs keys!"""
 # Idea: Collect item from Left and Right to find
 # Why? For fun!
 # Some secret message or something! idk!
 
-# Utilize if-elif-else for player actions
-# Uses the current_room as a way 
-def player_action(current_room, next_room):
-    dead("You've reached the current end!")
-
 # Try to Leave
 # TODO 
+
+
 # Loop x5 message of walking if loop is False
 # Return to start
 # set loop is True
@@ -174,11 +182,19 @@ def dead(why):
     print(f"{why} Game over!")
     exit(0)
     
-room_list = ["house_front", "house_back", "house_leave", "house_entrance," "house_left", "house_right", "house_final", "house_secret"]
+room_list = ["house_front", "house_behind", "house_leave", "house_entrance," "house_left", "house_right", "house_final", "house_secret"]
 inventory = []
 completed_rooms = []
 main_menu()
 health = difficulty()
-print(health)
+print("Your starting health will be:", health, "HP\n")
 player_name = start()
 house_front()
+
+if inventory == []:
+    inventory.append("Nothing")
+else:
+    pass
+
+print("Congratulations {}! You left the neighbourhood with \
+{} HP! Here's what you had in your pockets: {}".format(player_name,health, *inventory))
