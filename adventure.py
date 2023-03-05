@@ -28,6 +28,14 @@ def get_player_name():
 def finish_room(room):
     completed_rooms.append(room)
 
+# Takes user input, verifies it against the options
+def verify_input(user_input, options):
+    if user_input in options:
+        return True
+    else:
+        print("Please choose one of the options.")
+        return False
+
 # Front of House
 def house_front():
     current_room = house_front.__name__
@@ -41,11 +49,23 @@ def house_front():
         """
         )
         finish_room("house_front")
-    print(f"The house ")
+    print("""
+    The house itself seems to be abandoned, at least you cannot 
+    see any lights on. The front door lays open, though perhaps
+    the owner simply forgot it open while doing yardwork? They
+    could be in the backyard, why not check. Though the front door
+    is awfully inviting...   
+    """
+    )
     show_options = ["Go inside", "Go to back", "Leave"]
-    choice = input(prompt)
-    verify_input(choice, show_options)
+    user_input = False
 
+    while user_input is False:
+        print("Options:\n{} | {} | {}".format(*show_options))
+        choice = input(prompt)
+        user_input = verify_input(choice, show_options)
+
+    print(f"If you got here {player_name}, it means your {choice} was right. I think.")
 
 # Back of House
     # -> Look through windows - 3 choices
