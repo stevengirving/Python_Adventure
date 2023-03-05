@@ -1,9 +1,57 @@
 from sys import exit
+""" A short text-based adventure game to explore the use of functions,
+    lists, user input, and other shenanigans. 
+"""
 
 # Adventure design!
 
+# Main Menu
+def main_menu():
+    """ Prints the main menu of the game to allow exit"""
+    print("""MAIN MENU
+
+    > NEW GAME
+    > EXIT
+
+    TYPE SELECTION:
+    """
+    )
+    show_options = ["New Game", "Exit"]
+    selection = user_input(show_options)
+    if selection.lower() == "new game":
+        pass
+    else:
+        dead("Thank you for playing!")
+
+def difficulty():
+    """Sets the amount of mistakes player can make"""
+    print("Please choose your difficulty:")
+    show_options = ["Easy", "Medium", "Hard"]
+    selection = option_generator(show_options)
+    if selection.lower() == "easy":
+        return 5
+    elif selection.lower() == "medium":
+        return 3
+    else:
+        return 1
+
+def option_generator(options):
+    for i in options:
+        print("> ", i.upper())
+    selection = user_input(options)
+    return selection
+
+def user_input(options):
+    """ Loops user to re-type their answer to match options"""
+    loop = True
+    while loop is True:
+        user_says = input("> ")
+        loop = verify_input(user_says, options)
+    return user_says
+
 # Start message welcoming the player
 def start():
+    """ Initiates the start of the game"""
     print("Hello! Welcome to this little adventure!")
     player_name = get_player_name()
     print(f"{player_name}, let's get started.")
@@ -11,8 +59,9 @@ def start():
 
 # Define player name
 def get_player_name():
+    """ Collects the player's name"""
     print("What is your name?")
-    return input(prompt)
+    return input("> ")
 
 # Inventory system to add or remove
 def update_inventory(item, action):
@@ -21,21 +70,21 @@ def update_inventory(item, action):
    elif action == "remove":
        inventory.remove(item)
    else:
-       pass
+       dead("Something messed up with update_inventory")
 
 def finish_room(room):
     completed_rooms.append(room)
 
 # Takes user input, verifies it against the options
 def verify_input(user_input, options):
-    clean_options = []
+    cleaned_options = []
     for option_cleaner in options:
-        clean_options.append(option_cleaner.lower())
-    if user_input.lower() in clean_options:
-        return True
+        cleaned_options.append(option_cleaner.lower())
+    if user_input.lower() in cleaned_options:
+        return False
     else:
         print("Please choose one of the options.")
-        return False
+        return True
 
 # Front of House
 def house_front():
@@ -59,15 +108,18 @@ def house_front():
     """
     )
     show_options = ["Go inside", "Go to back", "Leave"]
-    user_input = False
+    selection = option_generator(show_options)
+    if selection.lower() == "go inside":
+        print("Going inside!")
+        pass
+    elif selection.lower() == "go to back":
+        print("Going around to the back!")
+        pass
+    else:
+        print("Getting the heck outta here!")
+        pass
 
-    while user_input is False:
-        print("Options:\n{} | {} | {}".format(*show_options))
-        choice = input(prompt)
-        user_input = verify_input(choice, show_options)
-
-    print(f"Finish line! You typed {choice}")
-    move_room(current_room, choice)
+    player_action(current_room, selection)
 
 # Back of House
 # -> Look through windows - 3 choices
@@ -103,11 +155,13 @@ def house_front():
 # Why? For fun!
 # Some secret message or something! idk!
 
-# Function to move between rooms?
-def move_room(current_room, next_room):
-    pass
+# Utilize if-elif-else for player actions
+# Uses the current_room as a way 
+def player_action(current_room, next_room):
+    dead("You've reached the current end!")
 
 # Try to Leave
+# TODO 
 # Loop x5 message of walking if loop is False
 # Return to start
 # set loop is True
@@ -116,12 +170,15 @@ def move_room(current_room, next_room):
 
 # Game Over Message
 def dead(why):
-    print(f"{why}. Game over!")
+    """ Prints the game over message and exits"""
+    print(f"{why} Game over!")
     exit(0)
     
-prompt = "> "
 room_list = ["house_front", "house_back", "house_leave", "house_entrance," "house_left", "house_right", "house_final", "house_secret"]
 inventory = []
 completed_rooms = []
+main_menu()
+health = difficulty()
+print(health)
 player_name = start()
 house_front()
