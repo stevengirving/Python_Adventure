@@ -12,18 +12,16 @@ def start():
 # Define player name
 def get_player_name():
     print("What is your name?")
-    return input("> ")
+    return input(prompt)
 
-# Inventory system
-# Honestly probably only like 2-3 items total
-# Two functions? One to Add, one to Remove?
-# def inventory(item, action):
-#   if action is "add":
-#       inventory.append(item)
-#   elif action is "remove":
-#       inventory.pop(item)
-#   else:
-#       pass
+# Inventory system to add or remove
+def update_inventory(item, action):
+   if action == "add":
+       inventory.append(item)
+   elif action == "remove":
+       inventory.remove(item)
+   else:
+       pass
 
 def finish_room(room):
     completed_rooms.append(room)
@@ -38,7 +36,7 @@ def verify_input(user_input, options):
 
 # Front of House
 def house_front():
-    current_room = house_front.__name__
+    current_room = house_front
     if current_room in completed_rooms:
         pass
     else:
@@ -65,52 +63,52 @@ def house_front():
         choice = input(prompt)
         user_input = verify_input(choice, show_options)
 
-    print(f"If you got here {player_name}, it means your {choice} was right. I think.")
+    move_room(current_room, choice)
 
 # Back of House
-    # -> Look through windows - 3 choices
-    # -> Go back to front of house
+# -> Look through windows - 3 choices
+# -> Go back to front of house
 
 # House Entrance
-    # -> Left Door
-    # -> Right Door
-    # -> Entrance door, now locked
+# -> Left Door
+# -> Right Door
+# -> Entrance door, now locked
 
 # House Left
-    # Some sort of puzzle
-    # Door locked until solved
-    # Secret item?
-    # -> House Final
-    # -> House Entrance
+# Some sort of puzzle
+# Door locked until solved
+# Secret item?
+# -> House Final
+# -> House Entrance
 
 # House Right
-    # Puzzle!! Fight??? BEARS?
-    # Secret item!
-    # -> House Back
-    # -> House Entrance
+# Puzzle!! Fight??? BEARS?
+# Secret item!
+# -> House Back
+# -> House Entrance
 
 # House Final
-    # THE FINAL PUZZLE!!!
-    # IT'S JUST GONNA BE FUCKING SODOKU
-    # THAT'S A LIE
-    # If both secret items:
-    # -> House Secret
+# THE FINAL PUZZLE!!!
+# IT'S JUST GONNA BE FUCKING SODOKU
+# THAT'S A LIE
+# If both secret items:
+# -> House Secret
 
 # House... Secret????
-    # Idea: Collect item from Left and Right to find
-    # Why? For fun!
-    # Some secret message or something! idk!
+# Idea: Collect item from Left and Right to find
+# Why? For fun!
+# Some secret message or something! idk!
 
 # Function to move between rooms?
-# def move_room(current_room, next_room):
-#   
+def move_room(current_room, next_room):
+    pass
 
 # Try to Leave
-    # Loop x5 message of walking if loop is False
-    # Return to start
-    # set loop is True
-    # Describe actual exit avoiding loop
-    # exit(0)
+# Loop x5 message of walking if loop is False
+# Return to start
+# set loop is True
+# Describe actual exit avoiding loop
+# exit(0)
 
 # Game Over Message
 def dead(why):
