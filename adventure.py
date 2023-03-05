@@ -28,7 +28,10 @@ def finish_room(room):
 
 # Takes user input, verifies it against the options
 def verify_input(user_input, options):
-    if user_input in options:
+    clean_options = []
+    for option_cleaner in options:
+        clean_options.append(option_cleaner.lower())
+    if user_input.lower() in clean_options:
         return True
     else:
         print("Please choose one of the options.")
@@ -63,6 +66,7 @@ def house_front():
         choice = input(prompt)
         user_input = verify_input(choice, show_options)
 
+    print(f"Finish line! You typed {choice}")
     move_room(current_room, choice)
 
 # Back of House
