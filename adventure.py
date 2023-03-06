@@ -5,6 +5,8 @@ from random import randint
     lists, user input, and other shenanigans. 
 """
 
+player_health = 25
+
 def main_menu():
     """Prints the main menu of the game to allow exit"""
     print("""
@@ -29,11 +31,11 @@ def difficulty():
     show_options = ["Easy", "Medium", "Hard"]
     selection = option_generator(show_options)
     if selection.lower() == "easy":
-        return 20
-    elif selection.lower() == "medium":
-        return 15
+        return 5
+    elif selection.lower() == "hard":
+        return -5
     else:
-        return 10
+        return 0
 
 def option_generator(options):
     """Prints a vertical list of options in all caps then gets user
@@ -215,26 +217,35 @@ def house_right():
         if "Nothing" in inventory:
             update_inventory("Nothing", "remove")
 #       add item
-        investory_update("secret_right", "add")
+        update_inventory("secret_right", "add")
         print(inventory)
         house_right()
     dead("You made it into the right room of the house, congrats!")
 
 def summon_bear(bear_health, bear_defeated):
+    global player_health
     if bear_defeated is False:
-        print(f"Current HP: {health}")
-        show_options("Fight", "Defend")
+        print(f"Current HP: {player_health}")
+        show_options = ["Fight", "Defend"]
         selection = option_generator(show_options)
         if selection.lower() == "fight":
             print("You go in for a fight!")
             bear_health -= 3
+            print("But it's a bear, and just swipes you too.")
+            player_health -= 5
+            print(f"Bear: {bear_health}. Player: {player_health}")
         elif selection.lower() == "defend":
             print("You try to defend yourself against a bear. It hurts.")
-            health -= 2
+            player_health -= 2
+        if bear_health <= 0:
+            print("Bear down, bear down!!")
+            bear_defeated = True
+        else:
+            summon_bear(bear_health, False)
 
 # Actually could do a simple fight system:
 #   Bear has 15? HP
-#   Player has {health}  HP
+#   Player has {player_health}  HP
 #   FIGHT (-3 bear HP) | DEFEND (-2 user HP) maybe ATK//2?
 #   BEAR does -5 HP per hit?
 #       Maybe 1/3 chance attack, 2/3 chance nothing
@@ -286,7 +297,7 @@ def dead(why):
     
 def victory():
     """Prints the victory end screen, showing totals, then exits"""
-    print(f"Congratulations {player_name}! You left the neighbourhood with {health} HP!")
+    print(f"Congratulations {player_name}! You left the neighbourhood with {player_health} HP!")
     print("Here's what you had in your pockets: {}".format(*inventory))
     print(f"Thank you for playing {player_name}!")
     exit(0)
@@ -295,7 +306,7 @@ room_list = ["house_front", "house_behind", "house_leave", "house_entrance," "ho
 inventory = ["Nothing"]
 completed_rooms = []
 main_menu()
-health = difficulty()
-print("Your starting health will be:", health, "HP\n")
+player_health = player_health + difficulty()
+print("Your starting health will be:", player_health, "HP\n")
 player_name = start()
 house_front()
