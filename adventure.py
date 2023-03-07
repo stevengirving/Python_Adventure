@@ -65,13 +65,13 @@ def start():
     return player_name
 
 def confirm_player_name(name):
-    print(f"You wrote {name.title()}, is this correct?")
+    print(f"\nYou wrote {name.title()}, is this correct?\n")
     options = ["Yes", "No"]
     confirm = input("> ")
     if confirm.lower() == "yes":
         pass
     else:
-        print("Please re-type your name:")
+        print("\nPlease re-type your name:\n")
         name = input("> ")
         confirm_player_name(name)
     return name
@@ -102,7 +102,7 @@ def verify_input(user_input, options):
         return True
 
 def house_front():
-    """Describes the front of The House and available actions"""
+    """Initial scene of the game"""
     current_room = house_front
     if current_room in completed_rooms:
         pass
@@ -135,14 +135,30 @@ def house_front():
         house_leave()
 
 def house_behind():
-    """Describes behind The House and available actions"""
+    """Lets the user get a sneak peek at two rooms"""
+    current_room = house_behind
+    if current_room in completed_rooms:
+        pass
+    else: 
+        print("First time description")
+        completed_rooms.append(current_room)
+    print("\nGeneric description\n")
+    show_options = ["Left Window", "Right Window", "Go back"]
+    selection = option_generator(show_options)
+    if selection.lower() == "left window":
+        print("Left window, you see... a bear???")
+    elif selection.lower() == "right window":
+        print("Right window, you see a lot of papers scattered around the room.")
+    else:
+        print("\nYeah this is weird, you walk back to the front of the house.\n")
+        house_front()
+    house_behind()
     dead("You made it to the back of the house, congrats!")
-# -> Look through windows - 3 choices
-# -> Go back to front of house
 
 def house_entrance():
-    """Describes the first room of The House and available actions"""
+    """Simple choice room with a chance to harm the player"""
     current_room = "house_entrance"
+    global player_health
     if current_room in completed_rooms:
         pass
     else:
@@ -159,12 +175,15 @@ def house_entrance():
         house_right()
     else:
         print("Trying to open the door, it cuts your hand. -1 HP")
-#       Reduce health by 1
-        house_entrance()
+        player_health -= 1
+        if player_health <= 0:
+            dead("You manage to die via door, congrats.")
+        else:
+            house_entrance()
     dead("You made it into the house, congrats!")
 
 def house_left():
-    """Describes the Left Room of The House and available actions"""
+    """Puzzle room based on reading text files """
     current_room = "house_left"
     if current_room in completed_rooms:
         pass
@@ -186,15 +205,14 @@ def house_left():
 #       check inventory for item
         if "Nothing" in inventory:
             update_inventory("Nothing", "remove")
-#       add item
         update_inventory("secret_left", "add")
         print(inventory)
         house_left()
     dead("You made it into the left room of the house, congrats!")
 
 def house_right():
-    """Describes the Right Room and summons the Bear fight"""
-    current_room = house_right
+    """Initiates a simple fight against a bear"""
+    current_room = "house_right"
     if current_room in completed_rooms:
         print("Generic message about the room")
     else:
@@ -213,7 +231,6 @@ def house_right():
         house_entrance()
     else:
         print("This will be related to the secret item")
-#       check inventory for item
         if "Nothing" in inventory:
             update_inventory("Nothing", "remove")
 #       add item
@@ -223,36 +240,86 @@ def house_right():
     dead("You made it into the right room of the house, congrats!")
 
 def summon_bear(bear_health, bear_defeated):
+    """Loops through combat options until either player or bear are dead"""
     global player_health
+    global player_name
     if bear_defeated is False:
         print(f"Current HP: {player_health}")
         show_options = ["Fight", "Defend"]
         selection = option_generator(show_options)
         if selection.lower() == "fight":
             print("You go in for a fight!")
-            bear_health -= 3
-            print("But it's a bear, and just swipes you too.")
-            player_health -= 5
+
+            player_hit_roll = randint(1,3)
+            if player_hit_roll == 2:
+                print("You get closer to the bear, trying to fight an angle to punch it.")
+            else:
+                print("You manage to get close to the bear, and smack its snoot.")
+                bear_health -= 3
+                    
+            bear_hit_roll = randint(1,3)
+            if bear_hit_roll == 2:
+                print("But it's a bear, and just swipes you with its claws.")
+                player_health -= 5
+            else:
+                print("Surprisingly, you're able to back away as the bear tries to hit you.")
+
             print(f"Bear: {bear_health}. Player: {player_health}")
         elif selection.lower() == "defend":
             print("You try to defend yourself against a bear. It hurts.")
             player_health -= 2
-        if bear_health <= 0:
+
+        if bear_health <= 0 and player_health <= 0:
+            dead(f"In a heroic action, {player_name} used their final breath to slay the bear.")
+        elif player_health <= 0:
+            dead(f"As expected, you have died to a bear. Good job {player_name}.")
+        elif bear_health <= 0:
             print("Bear down, bear down!!")
             bear_defeated = True
         else:
             summon_bear(bear_health, False)
 
-# Actually could do a simple fight system:
-#   Bear has 15? HP
-#   Player has {player_health}  HP
-#   FIGHT (-3 bear HP) | DEFEND (-2 user HP) maybe ATK//2?
-#   BEAR does -5 HP per hit?
-#       Maybe 1/3 chance attack, 2/3 chance nothing
-#       This would mean death in 4/3/2 rounds...
-
 def house_back():
-    """Descibes the Back Room of The House and available actions"""
+    """Has front entrance key; checks if players have both secret items"""
+    current_room = "house_back"
+    print(completed_rooms)
+    if current_room in completed_rooms:
+        pass
+    else:
+        print("House Back first time description.")
+        inventory.append("front_door_key")
+        finish_room(current_room)
+
+    print("House Back generic description")
+    show_options = ["Open left door", "Open right door"]
+    if "secret_left" in inventory and "secret_right" in inventory:
+        show_options.append("Open secret drawer")
+    else:
+        pass
+        
+    if "house_left" in completed_rooms:
+        show_options.remove("Open left door")
+        show_options.append("Open paper room door")
+    else:
+        pass
+
+    if "house_right" in completed_rooms:
+        show_options.remove("Open right door")
+        show_options.append("Open bear room door")
+    else:
+        pass
+
+    selection = option_generator(show_options)
+    if selection.lower() == "open right door" or selection.lower() == "open bear room door":
+        print("Opening the right door")
+        house_right()
+    elif selection.lower() == "open left door" or selection.lower() == "open paper room door":
+        print("Opening the left door")
+        house_left()
+    elif selection.lower() == "open secret drawer":
+        print("Congrats on getting both secrets!")
+        house_secret()
+
     dead("You made it into the back room of the house, congrats!")
 #   Set up final puzzle
 #   Check if player has both secret items
@@ -262,15 +329,11 @@ def house_back():
 #       victory()
 
 def house_secret():
-    """Describes the SECRET ROOM of The House, needs keys!"""
-    dead("You made it into the secret room, congrats!!")
-# Idea: Collect item from Left and Right to find
-# Why? For fun!
-# Some secret message or something! idk!
+    """SECRET ROOM that needs two keys to enter, just has bonus text."""
+    dead("You made it into the secret drawer, congrats!!")
 
 def house_leave():
-    """Runs a x5 loop of getting "lost" the first time, then allows \
-    exit"""
+    """Runs a x5 loop of getting "lost" the first time, then allows exit"""
     current_room = "house_leave"
     if current_room in completed_rooms:
         print("You actually have your bearing now, and don't know how you got lost before.")
