@@ -162,10 +162,13 @@ def house_entrance():
     if current_room in completed_rooms:
         pass
     else:
-        print("First time description")
+        print("House Entrance first time description")
     print("House Entrance description")
     finish_room(current_room)
     show_options = ["Go left", "Go right", "Get out"]
+    if "front_door_key" in inventory:
+        show_options.remove("Get out")
+        show_options.append("Get out with key")
     selection = option_generator(show_options)
     if selection.lower() == "go left":
         print("Opening the left door.")
@@ -173,6 +176,9 @@ def house_entrance():
     elif selection.lower() == "go right":
         print("Opening the right door")
         house_right()
+    elif selection.lower() == "get out with key":
+        print("You manage to unlock the front door, and step outside")
+        house_front()
     else:
         print("Trying to open the door, it cuts your hand. -1 HP")
         player_health -= 1
@@ -182,19 +188,25 @@ def house_entrance():
             house_entrance()
     dead("You made it into the house, congrats!")
 
+# TODO
 def house_left():
     """Puzzle room based on reading text files """
     current_room = "house_left"
     if current_room in completed_rooms:
         pass
     else:
-        print("First time description")
+        print("Left Room first time description")
+#       summon the puzzle
+#       start_puzzle()
     print("Left Room generic description")
     finish_room(current_room)
     show_options = ["Go forward", "Go back", "Secret item"]
+    if "secret_left" in inventory:
+        show_options.remove("Secret item")
+    else:
+        pass
     selection = option_generator(show_options)
     if selection == "go forward":
-#       Check if puzzle solved
         print("Going forward")
         house_back()
     elif selection == "go back":
@@ -202,26 +214,35 @@ def house_left():
         house_entrance()
     else:
         print("This will be related to the secret item")
-#       check inventory for item
         if "Nothing" in inventory:
             update_inventory("Nothing", "remove")
         update_inventory("secret_left", "add")
-        print(inventory)
         house_left()
     dead("You made it into the left room of the house, congrats!")
 
 def house_right():
     """Initiates a simple fight against a bear"""
     current_room = "house_right"
+    global summoned_bear
     if current_room in completed_rooms:
         print("Generic message about the room")
+    elif summoned_bear is False:
+        print("Now summoning... THE BEAR")
+        summoned_bear = True
+        summon_bear()
     else:
-        print("This will be the introductory message to the room")
-        print("Now summoning.... THE BEAR")
-        summon_bear(10, False)
-        finish_room(current_room)
+        print("The bear is still here, and doesn't seem keen to leave.")
+        summon_bear()
 
+    if bear_defeated == True:
+        finish_room(current_room)
+    else:
+        pass
     show_options = ["Go forward", "Go back", "Secret item"]
+    if "secret_right" in inventory:
+        show_options.remove("Secret item")
+    else:
+        pass
     selection = option_generator(show_options)
     if selection == "go forward":
         print("Going forward")
@@ -233,19 +254,19 @@ def house_right():
         print("This will be related to the secret item")
         if "Nothing" in inventory:
             update_inventory("Nothing", "remove")
-#       add item
         update_inventory("secret_right", "add")
-        print(inventory)
         house_right()
     dead("You made it into the right room of the house, congrats!")
 
-def summon_bear(bear_health, bear_defeated):
+def summon_bear():
     """Loops through combat options until either player or bear are dead"""
     global player_health
     global player_name
+    global bear_defeated
+    global bear_health
     if bear_defeated is False:
         print(f"Current HP: {player_health}")
-        show_options = ["Fight", "Defend"]
+        show_options = ["Fight", "Defend", "Flee"]
         selection = option_generator(show_options)
         if selection.lower() == "fight":
             print("You go in for a fight!")
@@ -269,6 +290,17 @@ def summon_bear(bear_health, bear_defeated):
             print("You try to defend yourself against a bear. It hurts.")
             player_health -= 2
 
+        elif selection.lower() == "flee":
+            print("You sprint back to the door and try to open it.")
+            x = randint(1,20)
+            if x <= 20:
+                print("You manage to open the door, and get out!")
+                house_entrance()
+            else:
+                print("In your panic, you can't open the door! The bear comes for you!")
+                player_health -= 5
+                
+
         if bear_health <= 0 and player_health <= 0:
             dead(f"In a heroic action, {player_name} used their final breath to slay the bear.")
         elif player_health <= 0:
@@ -277,12 +309,11 @@ def summon_bear(bear_health, bear_defeated):
             print("Bear down, bear down!!")
             bear_defeated = True
         else:
-            summon_bear(bear_health, False)
+            summon_bear()
 
 def house_back():
     """Has front entrance key; checks if players have both secret items"""
     current_room = "house_back"
-    print(completed_rooms)
     if current_room in completed_rooms:
         pass
     else:
@@ -321,12 +352,6 @@ def house_back():
         house_secret()
 
     dead("You made it into the back room of the house, congrats!")
-#   Set up final puzzle
-#   Check if player has both secret items
-#   if both_items is True:
-#       house_secret()
-#   else:
-#       victory()
 
 def house_secret():
     """SECRET ROOM that needs two keys to enter, just has bonus text."""
@@ -361,13 +386,16 @@ def dead(why):
 def victory():
     """Prints the victory end screen, showing totals, then exits"""
     print(f"Congratulations {player_name}! You left the neighbourhood with {player_health} HP!")
-    print("Here's what you had in your pockets: {}".format(*inventory))
+    print("Here's what you had in your pockets:", ", ".join(inventory))
     print(f"Thank you for playing {player_name}!")
     exit(0)
 
 room_list = ["house_front", "house_behind", "house_leave", "house_entrance," "house_left", "house_right", "house_final", "house_secret"]
 inventory = ["Nothing"]
-completed_rooms = []
+completed_rooms = [""]
+bear_defeated = False
+summoned_bear = False
+bear_health = 10
 main_menu()
 player_health = player_health + difficulty()
 print("Your starting health will be:", player_health, "HP\n")
