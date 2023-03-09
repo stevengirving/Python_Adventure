@@ -1,4 +1,3 @@
-from sys import exit
 from random import randint
 
 """ A short text-based adventure game to explore the use of functions,
@@ -83,6 +82,10 @@ def confirm_player_name(name):
 
 def update_inventory(item, action):
     """System to add or remove items to the inventory list"""
+    if "Nothing" in inventory:
+        inventory.remove("Nothing")
+    else:
+        pass
     if action == "add":
        inventory.append(item)
     elif action == "remove":
@@ -90,6 +93,10 @@ def update_inventory(item, action):
     else:
        dead("Something messed up with update_inventory")
 
+    if inventory == False:
+        inventory.append("Nothing")
+    else:
+        pass
 
 def finish_room(room):
     """Marks a room as "completed" to allow unique or alternate text"""
@@ -108,10 +115,21 @@ def verify_input(user_input, options):
         print("Please choose one of the options.\n")
         return True
 
+# TODO
+def puzzle_note(file):
+    global puzzle_version
+    with open(file), puzzle_version as f, p:
+        for i, line in enumerate(f, start=1):
+            if i == p:
+                puzzle_line = print(line)
+            elif i > 5:
+                break
+            else:
+                dead("puzzle_note error!")
 
 def house_front():
     """Initial scene of the game"""
-    current_room = house_front
+    current_room = "house_front"
     if current_room in completed_rooms:
         pass
     else:
@@ -119,15 +137,17 @@ def house_front():
     You are out on a walk one day when you come across a house you
     have never seen before. Oddly enoguh, you don't even recognize
     the neighbourhood you're in. You take a closer look at the house.
-    """
-        )
-        finish_room(current_room)
-    print("""
+
     The house itself seems to be abandoned, at least you cannot 
     see any lights on. The front door lays open, though perhaps
     the owner simply forgot it open while doing yardwork? They
     could be in the backyard, why not check. Though the front door
     is awfully inviting...   
+    """
+        )
+        finish_room(current_room)
+    print(f"""
+    Generic message for {current_room}
     """
     )
     show_options = ["Go inside", "Go to back", "Leave"]
@@ -145,13 +165,16 @@ def house_front():
 
 def house_behind():
     """Lets the user get a sneak peek at two rooms"""
-    current_room = house_behind
+    current_room = "house_behind"
     if current_room in completed_rooms:
         pass
     else: 
         print("First time description")
         completed_rooms.append(current_room)
     print("\nGeneric description\n")
+    print(f"""
+    Generic message for {current_room}
+    """)
     show_options = ["Left Window", "Right Window", "Go back"]
     selection = option_generator(show_options)
     if selection.lower() == "left window":
@@ -172,8 +195,13 @@ def house_entrance():
     if current_room in completed_rooms:
         pass
     else:
-        print("House Entrance first time description\n")
-    print("House Entrance description\n")
+        print(f"""
+        Generic message for {current_room}
+        """
+        )
+    print(f"""
+    Generic message for {current_room}
+    """)
     finish_room(current_room)
     show_options = ["Go left", "Go right", "Get out"]
     if "Front Door Key" in inventory:
@@ -205,7 +233,10 @@ def house_left():
     global puzzle_started
     current_room = "house_left"
     if current_room in completed_rooms:
-        print("This will display once the puzzle is done.\n")
+        print(f"""
+        Generic message for {current_room}
+         """
+        )
     elif puzzle_started is False:
         print("First time introduction to the room and puzzle.\n")
         puzzle_started = True
@@ -244,8 +275,6 @@ def house_left():
         house_entrance()
     else:
         print("This will be related to the secret item\n")
-        if "Nothing" in inventory:
-            update_inventory("Nothing", "remove")
         update_inventory("Paper Key", "add")
         house_left()
     dead(f"Error at {current_room}")
@@ -254,41 +283,20 @@ def house_left():
 # TODO
 def start_puzzle():
     """Lets the user read over five files and then try a solution"""
-    print("There's some sort of puzzle here.\n")
+    print("While there are plenty of papers scattered around, there are five in particular that catch your attention.\n")
     if puzzle_solved == False:
         show_options = ["File one", "File two", "File three", "File four", "File five", "Solve Puzzle", "Go back"]
+        files = {"File one": "note1.txt", "File two": "note2.txt", "File three": "note3.txt", "File four": "note4.txt", "File five": "note5.txt"}
         selection = option_generator(show_options)
-        if selection.lower() == "file one":
-            filename = "note_one.txt"
-            file_read = open(filename, 'r').read().strip()
-            print("File one")
-            print(file_read)
-            start_puzzle()
-        elif selection.lower() == "file two":
-            filename = "note_two.txt"
-            file_read = open(filename, 'r').read().strip()
-            print("File two")
-            print(file_read)
-            start_puzzle()
-        elif selection.lower() == "file three":
-            filename = "note_three.txt"
-            file_read = open(filename, 'r').read().strip()
-            print("File three")
-            print(file_read)
-            start_puzzle()
-        elif selection.lower() == "file four":
-            filename = "note_four.txt"
-            file_read = open(filename, 'r').read().strip()
-            print("File four")
-            print(file_read)
-            start_puzzle()
-        elif selection.lower() == "file five":
-            filename = "note_five.txt"
-            file_read = open(filename, 'r').read().strip()
-            print("File five")
-            print(file_read)
-            start_puzzle()
-        elif selection.lower() == "solve puzzle":
+        for show_options in files:
+            if selection.lower() == show_options.lower():
+                choice = files[show_options]
+                print(choice)
+                read_file(choice)
+                start_puzzle()
+            else:
+                pass
+        if selection.lower() == "solve puzzle":
             print("You think you have this figured out...\n")
             solve_puzzle()
             house_left()
@@ -297,7 +305,18 @@ def start_puzzle():
     else:
         pass
     house_left()
-    
+   
+# TODO
+def read_file(file):
+    global puzzle_version
+    puzzle_file = open(file, 'r').readlines()
+    for x in puzzle_file:
+        if x[:2].strip() == str(puzzle_version):
+            print(str(x[2:]))
+        else:
+            pass
+    else:
+        pass
 
 def solve_puzzle():
     """Lets the user try to solve the puzzle"""
@@ -305,7 +324,7 @@ def solve_puzzle():
     puzzle_solution = "???"
     print("From the clues given, what do you think the solution is?\n")
     user_guess = input("> ")
-    if user_guess == puzzle_solution:
+    if user_guess.lower() == puzzle_solution:
         print("Nice, you solved the puzzle!")
         puzzle_solved = True
         house_left()
@@ -345,8 +364,6 @@ def house_right():
         house_entrance()
     else:
         print("This will be related to the secret item\n")
-        if "Nothing" in inventory:
-            update_inventory("Nothing", "remove")
         update_inventory("Bear Key", "add")
         house_right()
     dead(f"Error at {current_room}")
@@ -424,21 +441,21 @@ def house_back():
         
     if "house_left" in completed_rooms:
         show_options.remove("Open left door")
-        show_options.append("Open paper room door")
+        show_options.append("Open paper door")
     else:
         pass
 
     if "house_right" in completed_rooms:
         show_options.remove("Open right door")
-        show_options.append("Open bear room door")
+        show_options.append("Open bear door")
     else:
         pass
 
     selection = option_generator(show_options)
-    if selection.lower() == "open right door" or selection.lower() == "open bear room door":
+    if selection.lower() == "open right door" or selection.lower() == "open bear door":
         print("opening the right door\n")
         house_right()
-    elif selection.lower() == "open left door" or selection.lower() == "open paper room door":
+    elif selection.lower() == "open left door" or selection.lower() == "open paper door":
         print("opening the left door\n")
         house_left()
     elif selection.lower() == "open secret drawer":
@@ -456,29 +473,26 @@ def house_secret():
 
 def house_leave():
     """Runs a x5 loop of getting "lost" the first time, then allows exit"""
+    global leave_count
     current_room = "house_leave"
-    if current_room in completed_rooms:
+    if "Front Door Key" in inventory:
         print("\nYou actually have your bearing now, and don't know how you got lost before.\n")
         victory()
     else:
-        loop = True
-    print("Generic description of the neighbourhood")
-
-    while loop is True:
+        print("Generic description of the neighbourhood")
         for i in range(1,6):
+            leave_count += 1
             print(f"\nRepetitive description. You have seen this {i} times\n")
             input("> ")
             if i == 5:
-                print(f"\nThis is the {i}th time you've seen that decoration. You trace your steps, ending back at the house.\n")
+                print(f"\nYou've seen that decoration {leave_count} times total now... You trace your steps, ending back at the house.\n")
                 break
-        loop = False
-    finish_room(current_room)
     house_front()
 
 
 def dead(why):
     """Prints the game over message and exits"""
-    print(f"{why} Game over!")
+    print(f"\n{why} Game over!")
     exit(0)
 
 
@@ -490,7 +504,7 @@ def victory():
     exit(0)
 
 
-room_list = ["house_front", "house_behind", "house_leave", "house_entrance," "house_left", "house_right", "house_final", "house_secret"]
+room_list = ["house_front", "house_behind", "house_leave", "house_entrance," "house_left", "house_right", "house_back", "house_secret"]
 inventory = ["Nothing"]
 completed_rooms = []
 bear_defeated = False
@@ -498,6 +512,8 @@ summoned_bear = False
 bear_health = 10
 puzzle_solved = False
 puzzle_started = False
+puzzle_version = randint(1,5)
+leave_count = 0
 main_menu()
 player_health = player_health + difficulty()
 print("Your starting health will be:", player_health, "HP\n")
